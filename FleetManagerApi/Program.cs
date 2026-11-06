@@ -4,6 +4,7 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // 1. Add services to the container FIRST
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
@@ -15,6 +16,12 @@ builder.Services.AddDbContext<FleetDbContext>(options =>
 
 // 3. Build the application container AFTER all services are registered
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<FleetDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // 4. Configure the HTTP request pipeline and middleware
 if (app.Environment.IsDevelopment())
