@@ -16,7 +16,7 @@ It features a built-in single-page frontend dashboard, clean architectural patte
 
 * **Interactive API Documentation:** Integrated with Scalar API reference (`/scalar/v1`) and OpenAPI endpoints for rapid testing.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 * **Backend Framework:** ASP.NET Core Web API (.NET)
 
