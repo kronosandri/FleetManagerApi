@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Management Control Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">🚗 Fleet Management System</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4" id="fleetTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="vehicles-tab" data-bs-toggle="tab" data-bs-target="#vehicles" type="button">Vehicles</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="customers-tab" data-bs-toggle="tab" data-bs-target="#customers" type="button">Customers</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="contracts-tab" data-bs-toggle="tab" data-bs-target="#contracts" type="button">Leases / Contracts</button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            
+            <!-- VEHICLES TAB -->
+            <div class="tab-pane fade show active" id="vehicles">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-white"><h5 class="m-0" id="vehicleFormTitle">Add New Vehicle</h5></div>
+                    <div class="card-body">
+                        <form id="vehicleForm" class="row g-3">
+                            <input type="hidden" id="vId">
+                            <div class="col-md-4"><input type="text" id="vModel" class="form-control" placeholder="Model (e.g. Toyota Corolla)" required></div>
+                            <div class="col-md-4"><input type="text" id="vPlate" class="form-control" placeholder="License Plate" required></div>
+                            <div class="col-md-4"><input type="number" id="vRate" class="form-control" placeholder="Daily Rental Price (€)" step="0.01" required></div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary" id="vehicleSubmitBtn">Save Vehicle</button>
+                                <button type="button" class="btn btn-secondary d-none" id="vehicleCancelBtn" onclick="resetVehicleForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white"><h5 class="m-0">Vehicle Fleet</h5></div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr><th>ID</th><th>Model</th><th>License Plate</th><th>Status</th><th>Daily Price</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="vehiclesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CUSTOMERS TAB -->
+            <div class="tab-pane fade" id="customers">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-white"><h5 class="m-0" id="customerFormTitle">Add New Customer</h5></div>
+                    <div class="card-body">
+                        <form id="customerForm" class="row g-3">
+                            <input type="hidden" id="cId">
+                            <div class="col-md-3"><input type="text" id="cName" class="form-control" placeholder="Full Name" required></div>
+                            <div class="col-md-3"><input type="email" id="cEmail" class="form-control" placeholder="Email Address" required></div>
+                            <div class="col-md-3"><input type="text" id="cPhone" class="form-control" placeholder="Phone Number" required></div>
+                            <div class="col-md-3"><input type="text" id="cLicense" class="form-control" placeholder="Driver's License No" required></div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary" id="customerSubmitBtn">Save Customer</button>
+                                <button type="button" class="btn btn-secondary d-none" id="customerCancelBtn" onclick="resetCustomerForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white"><h5 class="m-0">Customer Directory</h5></div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>License</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="customersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTRACTS / LEASES TAB -->
+            <div class="tab-pane fade" id="contracts">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-white"><h5 class="m-0">Create New Lease Contract</h5></div>
+                    <div class="card-body">
+                        <form id="contractForm" class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Available Vehicle</label>
+                                <select id="contractVehicle" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Customer</label>
+                                <select id="contractCustomer" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" id="contractStart" class="form-control" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">End Date</label>
+                                <input type="date" id="contractEnd" class="form-control" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Total Amount (€)</label>
+                                <input type="number" id="contractAmount" class="form-control" step="0.01" required>
+                            </div>
+                            <div class="col-12"><button type="submit" class="btn btn-success">Create Lease Agreement</button></div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white"><h5 class="m-0">Active & Past Leases</h5></div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr><th>ID</th><th>Vehicle</th><th>Customer</th><th>Dates</th><th>Status</th><th>Amount</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="contractsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+        // Automatically targets the current running host and port of your API
+        const API_BASE = window.location.origin;
+
+        async function loadAll() {
+            await loadVehicles();
+            await loadCustomers();
+            await loadContracts();
+        }
+
+        // --- VEHICLES ---
+        async function loadVehicles() {
+            try {
+                const res = await fetch(`${API_BASE}/api/vehicles`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const tbody = document.getElementById('vehiclesTable');
+                const select = document.getElementById('contractVehicle');
+                
+                tbody.innerHTML = '';
+                select.innerHTML = '<option value="">Choose available vehicle...</option>';
+
+                data.forEach(v => {
+                    const id = v.vehicleID || v.VehicleID;
+                    const model = v.model || v.Model;
+                    const plate = v.licensePlate || v.LicensePlate;
+                    const status = v.status || v.Status;
+                    const price = v.dailyRentalPrice || v.DailyRentalPrice;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${id}</td>
+                            <td>${model}</td>
+                            <td>${plate}</td>
+                            <td><span class="badge ${status === 'Available' ? 'bg-success' : 'bg-warning'}">${status}</span></td>
+                            <td>€${price}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editVehicle(${id}, '${model}', '${plate}', ${price}, '${status}')">Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteVehicle(${id})">Decommission</button>
+                            </td>
+                        </tr>`;
+                    
+                    if(status === 'Available') {
+                        select.innerHTML += `<option value="${id}">${model} (${plate}) - €${price}/day</option>`;
+                    }
+                });
+            } catch (err) {
+                console.error('Error loading vehicles:', err);
+            }
+        }
+
+        document.getElementById('vehicleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('vId').value;
+            const payload = {
+                model: document.getElementById('vModel').value,
+                licensePlate: document.getElementById('vPlate').value,
+                dailyRentalPrice: parseFloat(document.getElementById('vRate').value),
+                status: id ? document.getElementById('vStatusField')?.value || 'Available' : 'Available'
+            };
+
+            const url = id ? `${API_BASE}/api/vehicles/${id}` : `${API_BASE}/api/vehicles`;
+            const method = id ? 'PUT' : 'POST';
+
+            await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            resetVehicleForm();
+            loadAll();
+        });
+
+        function editVehicle(id, model, plate, price, status) {
+            document.getElementById('vId').value = id;
+            document.getElementById('vModel').value = model;
+            document.getElementById('vPlate').value = plate;
+            document.getElementById('vRate').value = price;
+            
+            if(!document.getElementById('vStatusField')) {
+                const hiddenStatus = document.createElement('input');
+                hiddenStatus.type = 'hidden';
+                hiddenStatus.id = 'vStatusField';
+                document.getElementById('vehicleForm').appendChild(hiddenStatus);
+            }
+            document.getElementById('vStatusField').value = status;
+
+            document.getElementById('vehicleFormTitle').innerText = `Edit Vehicle #${id}`;
+            document.getElementById('vehicleSubmitBtn').innerText = 'Update Vehicle';
+            document.getElementById('vehicleCancelBtn').classList.remove('d-none');
+        }
+
+        function resetVehicleForm() {
+            document.getElementById('vehicleForm').reset();
+            document.getElementById('vId').value = '';
+            document.getElementById('vehicleFormTitle').innerText = 'Add New Vehicle';
+            document.getElementById('vehicleSubmitBtn').innerText = 'Save Vehicle';
+            document.getElementById('vehicleCancelBtn').classList.add('d-none');
+        }
+
+        async function deleteVehicle(id) {
+            if(confirm('Decommission this vehicle?')) {
+                await fetch(`${API_BASE}/api/vehicles/${id}`, { method: 'DELETE' });
+                loadAll();
+            }
+        }
+
+        // --- CUSTOMERS ---
+        async function loadCustomers() {
+            try {
+                const res = await fetch(`${API_BASE}/api/customers`);
+                if (!res.ok) return;
+                
+                const data = await res.json();
+                const tbody = document.getElementById('customersTable');
+                const select = document.getElementById('contractCustomer');
+
+                tbody.innerHTML = '';
+                select.innerHTML = '<option value="">Choose customer...</option>';
+
+                data.forEach(c => {
+                    const id = c.customerID || c.CustomerID;
+                    const name = c.fullName || c.FullName;
+                    const email = c.email || c.Email;
+                    const phone = c.phoneNumber || c.PhoneNumber;
+                    const license = c.driverLicenseNo || c.DriverLicenseNo;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${id}</td>
+                            <td>${name}</td>
+                            <td>${email}</td>
+                            <td>${phone}</td>
+                            <td>${license}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editCustomer(${id}, '${name}', '${email}', '${phone}', '${license}')">Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${id})">Delete</button>
+                            </td>
+                        </tr>`;
+                    select.innerHTML += `<option value="${id}">${name} (${email})</option>`;
+                });
+            } catch (err) {
+                console.error('Error fetching customers:', err);
+            }
+        }
+
+        document.getElementById('customerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('cId').value;
+            const payload = {
+                fullName: document.getElementById('cName').value,
+                email: document.getElementById('cEmail').value,
+                phoneNumber: document.getElementById('cPhone').value,
+                driverLicenseNo: document.getElementById('cLicense').value
+            };
+
+            const url = id ? `${API_BASE}/api/customers/${id}` : `${API_BASE}/api/customers`;
+            const method = id ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) {
+                resetCustomerForm();
+                loadAll();
+            } else {
+                const err = await res.json();
+                alert(err.message || 'Error saving customer.');
+            }
+        });
+
+        function editCustomer(id, name, email, phone, license) {
+            document.getElementById('cId').value = id;
+            document.getElementById('cName').value = name;
+            document.getElementById('cEmail').value = email;
+            document.getElementById('cPhone').value = phone;
+            document.getElementById('cLicense').value = license;
+            document.getElementById('customerFormTitle').innerText = `Edit Customer #${id}`;
+            document.getElementById('customerSubmitBtn').innerText = 'Update Customer';
+            document.getElementById('customerCancelBtn').classList.remove('d-none');
+        }
+
+        function resetCustomerForm() {
+            document.getElementById('customerForm').reset();
+            document.getElementById('cId').value = '';
+            document.getElementById('customerFormTitle').innerText = 'Add New Customer';
+            document.getElementById('customerSubmitBtn').innerText = 'Save Customer';
+            document.getElementById('customerCancelBtn').classList.add('d-none');
+        }
+
+        async function deleteCustomer(id) {
+            if(confirm('Delete this customer?')) {
+                const res = await fetch(`${API_BASE}/api/customers/${id}`, { method: 'DELETE' });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.message || 'Cannot delete customer.');
+                }
+                loadAll();
+            }
+        }
+
+        // --- CONTRACTS / LEASES ---
+        async function loadContracts() {
+            try {
+                const res = await fetch(`${API_BASE}/api/contracts`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const tbody = document.getElementById('contractsTable');
+                tbody.innerHTML = '';
+
+                data.forEach(ct => {
+                    const v = ct.vehicle || ct.Vehicle;
+                    const c = ct.customer || ct.Customer;
+                    const status = ct.status || ct.Status;
+                    const id = ct.contractID || ct.ContractID;
+                    const amount = ct.totalAmount || ct.TotalAmount;
+                    const start = (ct.startDate || ct.StartDate || '').split('T')[0];
+                    const end = (ct.endDate || ct.EndDate || '').split('T')[0];
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${id}</td>
+                            <td>${v ? (v.model || v.Model) + ' (' + (v.licensePlate || v.LicensePlate) + ')' : 'N/A'}</td>
+                            <td>${c ? (c.fullName || c.FullName) : 'N/A'}</td>
+                            <td>${start} to ${end}</td>
+                            <td><span class="badge ${status === 'Active' ? 'bg-primary' : 'bg-secondary'}">${status}</span></td>
+                            <td>€${amount}</td>
+                            <td>
+                                ${status === 'Active' ? `<button class="btn btn-sm btn-warning" onclick="cancelContract(${id})">Cancel/Release</button>` : '—'}
+                            </td>
+                        </tr>`;
+                });
+            } catch (err) {
+                console.error('Error loading contracts:', err);
+            }
+        }
+
+        document.getElementById('contractForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch(`${API_BASE}/api/contracts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    vehicleID: parseInt(document.getElementById('contractVehicle').value),
+                    customerID: parseInt(document.getElementById('contractCustomer').value),
+                    startDate: document.getElementById('contractStart').value + 'T00:00:00Z',
+                    endDate: document.getElementById('contractEnd').value + 'T00:00:00Z',
+                    totalAmount: parseFloat(document.getElementById('contractAmount').value)
+                })
+            });
+
+            if (res.ok) {
+                document.getElementById('contractForm').reset();
+                loadAll();
+            } else {
+                const err = await res.json();
+                alert('Failed to create lease: ' + (err.message || JSON.stringify(err)));
+            }
+        });
+
+        async function cancelContract(id) {
+            if(confirm('Cancel this lease and return vehicle to available?')) {
+                await fetch(`${API_BASE}/api/contracts/${id}/cancel`, { method: 'POST' });
+                loadAll();
+            }
+        }
+
+        loadAll();
+    </script>
+</body>
+</html>
